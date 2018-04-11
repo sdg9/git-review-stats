@@ -1,0 +1,98 @@
+# Type queries into this side of the screen, and you will
+# see intelligent typeaheads aware of the current GraphQL type schema,
+# live syntax, and validation errors highlighted within the text.
+
+# We'll get you started with a simple query showing your username!
+query {
+  repository(owner:"Todo", name:"todo") {
+    pullRequests(last:40, states:MERGED) {
+      totalCount
+      edges {
+        cursor
+        node {
+          baseRef {
+            id
+            name
+          }
+          id
+          title
+          url
+          number
+          author {
+            login
+          }
+          createdAt
+          mergedAt
+          closed
+          closedAt
+          headRef {
+            id
+            name
+          }
+          mergedBy {
+            login
+          }
+          reviewRequests(last:100) {
+            totalCount
+            nodes {
+              reviewer {
+                login
+              }
+            }
+          }
+          suggestedReviewers {
+            reviewer {
+              login
+            }
+          }
+          commits {
+            totalCount
+          }
+          additions
+          deletions
+          changedFiles
+          reviews(last:100) {
+            totalCount
+            nodes {
+              comments(last:100){
+                totalCount
+                edges{
+                  node{
+                    bodyText
+                    createdAt
+                    author {
+                      login
+                    }
+                  }
+                }
+              }
+              state
+              author {
+                login
+              }
+              createdAt
+            }
+          }
+          comments(last:100) {
+            totalCount
+            edges{
+              node {
+                bodyText
+                author {
+                  login
+                }
+                createdAt
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  rateLimit{
+    cost
+    limit
+    remaining
+    resetAt
+  }
+}
