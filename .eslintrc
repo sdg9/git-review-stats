@@ -6,13 +6,13 @@
   },
   "plugins": [
     "import",
-    "import-order-autofix",
     "eslint-plugin-flowtype",
     "json"
   ],
 
   // Map from global var to bool specifying if it can be redefined
   "globals": {
+    // Other
     "__BUNDLE_START_TIME__": false,
     "__DEV__": true,
     "__dirname": false,
@@ -394,9 +394,6 @@
      'import/no-duplicates': 'warn',
      'import/extensions': ['warn', 'never'],
 
-     'import-order-autofix/order': ['warn', {
-        newlines-between: 'always',
-     }],
      'import/newline-after-import': 'warn',
      'import/no-unassigned-import': 'warn',
 

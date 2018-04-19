@@ -4,7 +4,7 @@
 
 # We'll get you started with a simple query showing your username!
 query {
-  repository(owner:"Todo", name:"todo") {
+  repository(owner:"TODO", name:"TODO") {
     pullRequests(last:40, states:MERGED) {
       totalCount
       edges {

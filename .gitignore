@@ -56,3 +56,5 @@ jspm_packages
 .git-stats-config.js
 workbook
 data
+output
+secrets.js
