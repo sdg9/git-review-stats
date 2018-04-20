@@ -196,7 +196,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
                         link={{
                           source,
                           target,
-                          value: strength,
+                          value: strength * 2,
                         }}
                       />
                     )),
