@@ -34,6 +34,7 @@ import TeamGraphView from 'components/TeamGraphView';
 import PageHeader from 'components/PageHeader';
 import NavigationBar from 'components/NavigationBar';
 import InteractiveForceGraphWidget from 'components/InteractiveForceGraphWidget';
+import { idToName } from '../../utils/string';
 
 import type {
   ReviewData,
@@ -68,7 +69,7 @@ export class UserPage extends React.PureComponent<Props, State> { // eslint-disa
       <div>
         <PageHeader
           showBackButton
-          subtitle={user}
+          subtitle={`${idToName(user)} (${user})`}
           datasetOverview={{
             fromDate: this.props.sortedDates.head,
             toDate: this.props.sortedDates.last,

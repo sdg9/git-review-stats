@@ -29,6 +29,7 @@ import { makeSelectCurrentUser } from 'containers/App/selectors';
 import 'react-table/react-table.css';
 
 import { numberToColorHsl } from '../../utils/math';
+import { idToName } from '../../utils/string';
 
 import type {
   PullRequestData,
@@ -125,7 +126,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'ID',
             accessor: 'name.value', // String-based value accessors!
-            Cell: row => (<Link to={`user/${row.value}`}>{row.value}</Link>),
+            Cell: row => (<Link to={`user/${row.value}`}>{idToName(row.value)}</Link>),
           },
         ],
       },

@@ -49,7 +49,10 @@ export type Links = {
 }
 
 export type Nodes = ({
-  id: string
+  // github id
+  id: string,
+  // real name/ what to display to ui
+  label: string
 })[];
 
 export type IdentityGraphData = {

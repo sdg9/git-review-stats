@@ -142,6 +142,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
         <div>
           <InteractiveForceGraph
             showLabels
+            labelAttr="label"
             simulationOptions={{
               height: 600,
               width: 600,
@@ -151,6 +152,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
             }}
             defaultSelectedNode={{ id: this.props.defaultSelectedNode }}
             onSelectNode={(event, node) => {
+              console.log('Selected: ', node);
               this.props.onSelectNode(node);
             }}
             onDeselectNode={(event, node) => {
@@ -166,6 +168,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
                 key={item.id}
                 node={{
                   id: item.id,
+                  label: item.label,
                   radius: this.getRadius(this.props.userData, this.props.aggregatedData, item.id),
                 // radius: this.props.identityGraphData.links[this.props.user][item.id],
                 }}

@@ -13,6 +13,8 @@ import type {
   IdentityGraphData,
 } from '../types';
 
+import { idToName } from './string';
+
 /**
  * Creates the identity graph node list.
  * @param whitelistedIdentifiers Optional argument containing the identifies that should be
@@ -30,7 +32,7 @@ export function createIdentityGraph(allData: Array<PullRequestData>, userData: U
     if (blacklistUsers.includes(key)) {
       return;
     }
-    nodes.push({ id: key, });
+    nodes.push({ id: key, label: idToName(key) });
   });
 
   // const links = [];
@@ -41,7 +43,7 @@ export function createIdentityGraph(allData: Array<PullRequestData>, userData: U
       return;
     }
     if (!_.find(nodes, (node) => node.id === author)) {
-      nodes.push({ id: author });
+      nodes.push({ id: author, label: idToName(author) });
     }
     const reviews = pullRequest.node.reviews.nodes;
     _.forEach(reviews, (review) => {
@@ -50,7 +52,7 @@ export function createIdentityGraph(allData: Array<PullRequestData>, userData: U
         return;
       }
       if (!_.find(nodes, (node) => node.id === reviewer)) {
-        nodes.push({ id: reviewer });
+        nodes.push({ id: reviewer, label: idToName(reviewer) });
       }
       if (user !== undefined && (author === reviewer || reviewer !== user)) {
         return;
