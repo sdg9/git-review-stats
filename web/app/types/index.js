@@ -3,6 +3,7 @@
 export type UserDataType = {
   value: number,
   tier: number,
+  rank: number,
 };
 
 export type UserData = {
@@ -18,6 +19,9 @@ export type UserData = {
   commentsReceived: UserDataType,
   merged: UserDataType,
   pullRequestsSubmitted: UserDataType,
+  pullRequestsOpened: UserDataType,
+  pullRequestsMerged: UserDataType,
+  pullRequestsClosed: UserDataType,
 
   // Built at end
   totalActivity: UserDataType,
@@ -49,7 +53,10 @@ export type Links = {
 }
 
 export type Nodes = ({
-  id: string
+  // github id
+  id: string,
+  // real name/ what to display to ui
+  label: string
 })[];
 
 export type IdentityGraphData = {
@@ -76,6 +83,7 @@ export type PullRequestData = ({|
         |},
         commits: {|totalCount: number|},
         createdAt: string,
+        state: string,
         deletions: number,
         headRef: {|id: string, name: string|},
         id: string,
@@ -139,8 +147,13 @@ export type Approval = {
 
 export type Comment = {
   createdAt: string,
+  bodyText: string,
+  // From Review as comment
   isReviewComment?: boolean,
+  // From Review as Change Request
   isChangeRequestedComment?: boolean,
+  // From review as approve
+  isApprovalComment?: boolean,
   isNonReviewComment?: boolean,
   login: string
 };

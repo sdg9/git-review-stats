@@ -29,6 +29,7 @@ import { makeSelectCurrentUser } from 'containers/App/selectors';
 import 'react-table/react-table.css';
 
 import { numberToColorHsl } from '../../utils/math';
+import { idToName } from '../../utils/string';
 
 import type {
   PullRequestData,
@@ -115,7 +116,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
       arrayData.push(value);
     });
 
-    const curve = this.state.curve; // Number of "top active people" to toss when trying to find a 100% baseline
+    // const curve = this.state.curve; // Number of "top active people" to toss when trying to find a 100% baseline
     // const maxTotalActivity = totalActivityArray.sort((a, b) => (b - a))[curve];
 
     const columns = [
@@ -125,7 +126,14 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'ID',
             accessor: 'name.value', // String-based value accessors!
-            Cell: row => (<Link to={`user/${row.value}`}>{row.value}</Link>),
+            filterable: true,
+            filterMethod: (filter, row, column) => {
+              const filterValue = filter.value !== undefined && filter.value.toLowerCase();
+              const name = idToName(row['name.value']);
+              const nameLower = name && name.toLowerCase();
+              return name !== undefined ? String(nameLower).startsWith(filterValue) : true;
+            },
+            Cell: row => (<Link to={`user/${row.value}`}>{idToName(row.value)}</Link>),
           },
         ],
       },
@@ -318,8 +326,29 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
         Header: 'PRs',
         columns: [
           {
-            Header: 'Complete',
-            accessor: 'pullRequestsSubmitted',
+            Header: 'Merged',
+            accessor: 'pullRequestsMerged',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
+          {
+            Header: 'Open',
+            accessor: 'pullRequestsOpened',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
+          {
+            Header: 'Closed',
+            accessor: 'pullRequestsClosed',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
+          {
+            Header: 'Merged Other',
+            accessor: 'merged',
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,

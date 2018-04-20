@@ -18,6 +18,7 @@ import type {
   ReviewData,
   SortedDates,
   IdentityGraphData,
+  Users,
 } from '../../types';
 
 import { getAverage } from '../../utils/math';
@@ -66,11 +67,14 @@ function getPullRequests(data: GithubReviewData) {
   return data.data.repository.pullRequests.edges;
 }
 
+const nonBotComment = bodyText => !bodyText.match(/mab|dnm|do not merge/i);
+
 function getReviewsByNumber(data: GithubReviewData, number: number) {
   let approvals = [];
   let requestedChanges = [];
   const comments = [];
   const pullRequest = getPullRequests(data).find(item => item.node.number === number);
+
 
   if (pullRequest) {
     let pendingApproval = [];
@@ -87,6 +91,19 @@ function getReviewsByNumber(data: GithubReviewData, number: number) {
       if (review.state === 'APPROVED') {
         existingApprovals += 1;
         pendingApproval.push(object);
+        // if (review.comments.totalCount > 0) {
+        //   console.log('Comment: ', review.comments.edges);
+        // }
+        review.comments.edges.forEach((comment) => {
+          if (nonBotComment(comment.node.bodyText)) {
+            comments.push({
+              login: comment.node.author.login,
+              createdAt: comment.node.createdAt,
+              isApprovalComment: true,
+              bodyText: comment.node.bodyText,
+            });
+          }
+        });
       } else if (review.state === 'CHANGES_REQUESTED') {
         pendingChangeRequested.push(object);
         pendingApproval = pendingApproval.map(item => ({
@@ -95,19 +112,34 @@ function getReviewsByNumber(data: GithubReviewData, number: number) {
         }));
         // Push change requested comments as comments
         review.comments.edges.forEach((comment) => {
-          comments.push({
-            login: comment.node.author.login,
-            createdAt: comment.node.createdAt,
-            isChangeRequestedComment: true,
-          });
+          if (nonBotComment(comment.node.bodyText)) {
+            comments.push({
+              login: comment.node.author.login,
+              createdAt: comment.node.createdAt,
+              isChangeRequestedComment: true,
+              bodyText: comment.node.bodyText,
+            });
+          }
         });
       } else if (review.state === 'COMMENTED') {
-        // Push review comments as comments
-        comments.push({
-          login: review.author.login,
-          createdAt: review.createdAt,
-          isReviewComment: true,
+        review.comments.edges.forEach((comment) => {
+          if (nonBotComment(comment.node.bodyText)) {
+            comments.push({
+              login: comment.node.author.login,
+              createdAt: comment.node.createdAt,
+              isReviewComment: true,
+              bodyText: comment.node.bodyText,
+            });
+          }
         });
+        // console.log(review.comments);
+        // // Push review comments as comments
+        // comments.push({
+        //   login: review.author.login,
+        //   createdAt: review.createdAt,
+        //   isReviewComment: true,
+        //   // bodyText: review.bodyText,
+        // });
       } else {
         // console.warn(`Unknown review state: ${review.state}`);
       }
@@ -129,13 +161,14 @@ function getCommentsByNumber(data: GithubReviewData, number: number): Array<Comm
   const pullRequest = getPullRequests(data).find(item => item.node.number === number);
   if (pullRequest) {
     pullRequest.node.comments.edges.forEach((comment) => {
-      const object = {
-        login: comment.node.author.login,
-        createdAt: comment.node.createdAt,
-        isNonReviewComment: true,
-      };
-
-      comments.push(object);
+      if (nonBotComment(comment.node.bodyText)) {
+        comments.push({
+          login: comment.node.author.login,
+          createdAt: comment.node.createdAt,
+          bodyText: comment.node.bodyText,
+          isNonReviewComment: true,
+        });
+      }
     });
   }
   return comments;
@@ -161,6 +194,9 @@ const emptyObject = {
   approvalGivenSecond: 0,
   approvalGivenAfterTwoApprovals: 0,
   merged: 0,
+  pullRequestsOpened: 0,
+  pullRequestsMerged: 0,
+  pullRequestsClosed: 0,
 
   // Recevied
   approvalsReceived: 0,
@@ -182,6 +218,15 @@ export function buildUserData(data: GithubReviewData, businessDays: number): Use
   getPullRequests(data).forEach((pullRequest) => {
     const author = pullRequest.node.author.login;
 
+    // Ignore merge PRs
+    if (pullRequest.node.title.match(/merge.*master/i)) {
+      return;
+    }
+    // TODO do something with revert PRs?
+    // if (pullRequest.node.title.match(/revert/i)) {
+      // console.log('T: ', pullRequest.node.title);
+    // }
+
     if (secrets.blacklistUsers && secrets.blacklistUsers.includes(author)) {
       return;
     }
@@ -197,13 +242,23 @@ export function buildUserData(data: GithubReviewData, businessDays: number): Use
     const comments = getCommentsByNumber(data, number);
     authors[author].approvalsReceived += review.approvals.length;
     authors[author].changesRequestedReceived += review.requestedChanges.length;
-    const mergedByUser = pullRequest.node.mergedBy.login;
-    if (!authors.hasOwnProperty(mergedByUser)) {
-      authors[mergedByUser] = {
-        ...emptyObject,
-      };
+
+    const state = pullRequest.node.state;
+
+    if (state === 'MERGED') {
+      authors[author].pullRequestsMerged += 1;
+      const mergedByUser = pullRequest.node.mergedBy.login;
+      if (!authors.hasOwnProperty(mergedByUser)) {
+        authors[mergedByUser] = {
+          ...emptyObject,
+        };
+      }
+      authors[mergedByUser].merged += 1;
+    } else if (state === 'OPEN') {
+      authors[author].pullRequestsOpened += 1;
+    } else if (state === 'CLOSED') {
+      authors[author].pullRequestsClosed += 1;
     }
-    authors[mergedByUser].merged += 1;
 
     review.approvals.forEach((approval) => {
       const approvalAuthor = approval.login;
@@ -241,6 +296,7 @@ export function buildUserData(data: GithubReviewData, businessDays: number): Use
       }
       authors[requestedChangesAuthor].changesRequestedGiven += 1;
     });
+
     // Review Comments
     review.comments.forEach((comment) => {
       const commentAuthor = comment.login;
@@ -304,6 +360,7 @@ function wrapAuthorData(authors: Users, allScoresSorted) {
       retVal[user][key] = {
         value,
         tier: getTier(key, value, allScoresSorted),
+        rank: getRank(key, value, allScoresSorted),
       };
     });
   });
@@ -311,6 +368,26 @@ function wrapAuthorData(authors: Users, allScoresSorted) {
   return retVal;
 }
 
+function getRank(key, value, scores) {
+  if (!_.isNumber(value)) {
+    return 0;
+  }
+  const scoresDuplicatesRemoved = _.sortedUniq(scores[key]);
+
+  const index = scoresDuplicatesRemoved.indexOf(value);
+  // return `${scoresDuplicatesRemoved.length - index}/${scoresDuplicatesRemoved.length}`;
+  switch (key) {
+    case 'commentsReceived':
+    case 'commentsReceivedPerPR':
+    case 'changesRequestedReceived':
+    case 'changeRequestReceivedPerPR':
+    case 'approvedBeforeChangeRequestGivenBySomeoneElse':
+    case 'approvedBeforeChangeRequestPerPR':
+      return index + 1;
+    default:
+      return `${scoresDuplicatesRemoved.length - index}`;
+  }
+}
 function getTier(key, value, scores) {
   if (!_.isNumber(value)) {
     return 0;
@@ -357,13 +434,32 @@ function calculateTier(authors: Users) {
 
 function commentsReceviedByPR(data: GithubReviewData, number: number) {
   const pullRequest = getPullRequests(data).find(item => item.node.number === number);
-  let comments;
+  let retVal;
   if (pullRequest) {
-    const reviewComments = getReviewsByNumber(data, number).comments.length;
-    const regularComments = getCommentsByNumber(data, number).length;
-    comments = reviewComments + regularComments;
+    const reviewComments = getReviewsByNumber(data, number).comments;
+    const regularComments = getCommentsByNumber(data, number);
+    //
+    // const nonBotRelated = comments => _.filter(comments, (comment) => {
+    //   if (comment.bodyText.match(/dnm|mab|tai/i)) {
+    //     // console.log('Removing comment: ', comment);
+    //     return false;
+    //   }
+    //   return true;
+    // },
+    // );
+    // const nonBotRelated = comments => comments;
+    // const nonBotRelatedReview = _.filter(reviewComments, (comment) => {
+    //   if (comment.bodyText.match(/dnm|mab/i)) {
+    //     console.log('Comment: ', comment);
+    //     return false;
+    //   }
+    //   return true;
+    // });
+
+    // retVal = nonBotRelated(reviewComments).length + nonBotRelated(regularComments).length;
+    retVal = reviewComments.length + regularComments.length;
   }
-  return comments;
+  return retVal;
 }
 
 // const makeSelectReviewData = (startDate, endDate) => createSelector(

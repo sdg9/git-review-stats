@@ -103,7 +103,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
       return 'yellow';
     }
     // console.log('Company: ', company);
-    return 'orange';
+    return '#fc7aff';
   }
   teamMappingStroke(user: string) {
     const team = _.get(secrets, ['userMapping', user, 'team'], undefined);
@@ -139,9 +139,12 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
       <div>
         <Button onClick={() => { this.setState({ userTeamColors: true }); }}>Team Colors</Button>
         <Button onClick={() => { this.setState({ userTeamColors: false }); }}>Company Colors</Button>
+        <div>Circle Radius: Quantity of Review as a user</div>
+        <div>Line Strength: How frequently reviewed linked user</div>
         <div>
           <InteractiveForceGraph
             showLabels
+            labelAttr="label"
             simulationOptions={{
               height: 600,
               width: 600,
@@ -151,6 +154,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
             }}
             defaultSelectedNode={{ id: this.props.defaultSelectedNode }}
             onSelectNode={(event, node) => {
+              console.log('Selected: ', node);
               this.props.onSelectNode(node);
             }}
             onDeselectNode={(event, node) => {
@@ -166,6 +170,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
                 key={item.id}
                 node={{
                   id: item.id,
+                  label: item.label,
                   radius: this.getRadius(this.props.userData, this.props.aggregatedData, item.id),
                 // radius: this.props.identityGraphData.links[this.props.user][item.id],
                 }}
@@ -193,7 +198,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
                         link={{
                           source,
                           target,
-                          value: strength,
+                          value: strength * 2,
                         }}
                       />
                     )),

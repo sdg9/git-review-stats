@@ -37,11 +37,12 @@ class NumberPanel extends React.PureComponent { // eslint-disable-line react/pre
     const className = classnames(
             'numberPanel',
             { wide: this.props.size == 'wide' },
-            { xWide: this.props.size == 'xWide' }
+            { xWide: this.props.size == 'xWide' },
         );
     return (
       <OverlayTrigger placement="bottom" overlay={tooltip}>
         <div className={className} data-toggle="tooltip">
+          <div>&nbsp;<div className="title">{this.props.rank}</div></div>
           <div className="value">{value}</div>
           <div>&nbsp;<div className="title">{this.props.title}</div></div>
         </div>
