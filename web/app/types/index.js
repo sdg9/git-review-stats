@@ -147,8 +147,13 @@ export type Approval = {
 
 export type Comment = {
   createdAt: string,
+  bodyText: string,
+  // From Review as comment
   isReviewComment?: boolean,
+  // From Review as Change Request
   isChangeRequestedComment?: boolean,
+  // From review as approve
+  isApprovalComment?: boolean,
   isNonReviewComment?: boolean,
   login: string
 };
