@@ -116,7 +116,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
       arrayData.push(value);
     });
 
-    const curve = this.state.curve; // Number of "top active people" to toss when trying to find a 100% baseline
+    // const curve = this.state.curve; // Number of "top active people" to toss when trying to find a 100% baseline
     // const maxTotalActivity = totalActivityArray.sort((a, b) => (b - a))[curve];
 
     const columns = [
@@ -126,6 +126,13 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'ID',
             accessor: 'name.value', // String-based value accessors!
+            filterable: true,
+            filterMethod: (filter, row, column) => {
+              const filterValue = filter.value !== undefined && filter.value.toLowerCase();
+              const name = idToName(row['name.value']);
+              const nameLower = name && name.toLowerCase();
+              return name !== undefined ? String(nameLower).startsWith(filterValue) : true;
+            },
             Cell: row => (<Link to={`user/${row.value}`}>{idToName(row.value)}</Link>),
           },
         ],
