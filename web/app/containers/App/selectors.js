@@ -186,6 +186,15 @@ export function buildUserData(data: GithubReviewData, businessDays: number): Use
   getPullRequests(data).forEach((pullRequest) => {
     const author = pullRequest.node.author.login;
 
+    // Ignore merge PRs
+    if (pullRequest.node.title.match(/merge.*master/i)) {
+      return;
+    }
+    // TODO do something with revert PRs?
+    // if (pullRequest.node.title.match(/revert/i)) {
+      // console.log('T: ', pullRequest.node.title);
+    // }
+
     if (secrets.blacklistUsers && secrets.blacklistUsers.includes(author)) {
       return;
     }
