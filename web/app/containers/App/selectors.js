@@ -327,6 +327,7 @@ function wrapAuthorData(authors: Users, allScoresSorted) {
       retVal[user][key] = {
         value,
         tier: getTier(key, value, allScoresSorted),
+        rank: getRank(key, value, allScoresSorted),
       };
     });
   });
@@ -334,6 +335,26 @@ function wrapAuthorData(authors: Users, allScoresSorted) {
   return retVal;
 }
 
+function getRank(key, value, scores) {
+  if (!_.isNumber(value)) {
+    return 0;
+  }
+  const scoresDuplicatesRemoved = _.sortedUniq(scores[key]);
+
+  const index = scoresDuplicatesRemoved.indexOf(value);
+  // return `${scoresDuplicatesRemoved.length - index}/${scoresDuplicatesRemoved.length}`;
+  switch (key) {
+    case 'commentsReceived':
+    case 'commentsReceivedPerPR':
+    case 'changesRequestedReceived':
+    case 'changeRequestReceivedPerPR':
+    case 'approvedBeforeChangeRequestGivenBySomeoneElse':
+    case 'approvedBeforeChangeRequestPerPR':
+      return index + 1;
+    default:
+      return `${scoresDuplicatesRemoved.length - index}`;
+  }
+}
 function getTier(key, value, scores) {
   if (!_.isNumber(value)) {
     return 0;

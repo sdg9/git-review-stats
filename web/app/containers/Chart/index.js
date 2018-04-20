@@ -346,6 +346,13 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,
           },
+          {
+            Header: 'Merged Other',
+            accessor: 'merged',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
           // {
           //   Header: 'Merged',
           //   accessor: 'merged',

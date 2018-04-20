@@ -36,6 +36,7 @@ class ReviewsReceivedPanel extends React.PureComponent<Props> { // eslint-disabl
           title="PRs"
           tooltip="Total pull requests completed by this user."
           value={data.pullRequestsSubmitted.value}
+          rank={data.pullRequestsSubmitted.rank}
         />
         </HorizontalCenterDiv>
         <ClearFloat />
@@ -43,17 +44,20 @@ class ReviewsReceivedPanel extends React.PureComponent<Props> { // eslint-disabl
           title="change request/PR"
           tooltip="Number of change requests received by this user per PR. A higher number may indicate the user is missing things in self review."
           value={data.changeRequestReceivedPerPR.value}
+          rank={data.changeRequestReceivedPerPR.rank}
         />
         <NumberPanel
           title="Change Requests"
           tooltip="Number of change requests received by this user."
           value={data.changesRequestedReceived.value}
+          rank={data.changesRequestedReceived.rank}
         />
         <ClearFloat />
         <NumberPanel
           title="comments/PR"
           tooltip="Number of comments received by this user per PR. A higher number may indicate the user's code is not clearly explained."
           value={data.commentsReceivedPerPR.value}
+          rank={data.commentsReceivedPerPR.rank}
         />
         <NumberPanel
           title="Comments"

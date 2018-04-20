@@ -139,6 +139,8 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
       <div>
         <Button onClick={() => { this.setState({ userTeamColors: true }); }}>Team Colors</Button>
         <Button onClick={() => { this.setState({ userTeamColors: false }); }}>Company Colors</Button>
+        <div>Circle Radius: Quantity of Review as a user</div>
+        <div>Line Strength: How frequently reviewed linked user</div>
         <div>
           <InteractiveForceGraph
             showLabels

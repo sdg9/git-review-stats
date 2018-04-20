@@ -3,6 +3,7 @@
 export type UserDataType = {
   value: number,
   tier: number,
+  rank: number,
 };
 
 export type UserData = {
