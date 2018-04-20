@@ -18,6 +18,7 @@ import type {
   ReviewData,
   SortedDates,
   IdentityGraphData,
+  Users,
 } from '../../types';
 
 import { getAverage } from '../../utils/math';
@@ -161,6 +162,9 @@ const emptyObject = {
   approvalGivenSecond: 0,
   approvalGivenAfterTwoApprovals: 0,
   merged: 0,
+  pullRequestsOpened: 0,
+  pullRequestsMerged: 0,
+  pullRequestsClosed: 0,
 
   // Recevied
   approvalsReceived: 0,
@@ -197,13 +201,23 @@ export function buildUserData(data: GithubReviewData, businessDays: number): Use
     const comments = getCommentsByNumber(data, number);
     authors[author].approvalsReceived += review.approvals.length;
     authors[author].changesRequestedReceived += review.requestedChanges.length;
-    const mergedByUser = pullRequest.node.mergedBy.login;
-    if (!authors.hasOwnProperty(mergedByUser)) {
-      authors[mergedByUser] = {
-        ...emptyObject,
-      };
+
+    const state = pullRequest.node.state;
+
+    if (state === 'MERGED') {
+      authors[author].pullRequestsMerged += 1;
+      const mergedByUser = pullRequest.node.mergedBy.login;
+      if (!authors.hasOwnProperty(mergedByUser)) {
+        authors[mergedByUser] = {
+          ...emptyObject,
+        };
+      }
+      authors[mergedByUser].merged += 1;
+    } else if (state === 'OPEN') {
+      authors[author].pullRequestsOpened += 1;
+    } else if (state === 'CLOSED') {
+      authors[author].pullRequestsClosed += 1;
     }
-    authors[mergedByUser].merged += 1;
 
     review.approvals.forEach((approval) => {
       const approvalAuthor = approval.login;

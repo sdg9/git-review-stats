@@ -319,8 +319,22 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
         Header: 'PRs',
         columns: [
           {
-            Header: 'Complete',
-            accessor: 'pullRequestsSubmitted',
+            Header: 'Merged',
+            accessor: 'pullRequestsMerged',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
+          {
+            Header: 'Open',
+            accessor: 'pullRequestsOpened',
+            sortMethod,
+            // Cell: this.rowWithBackground,
+            Cell: this.rowWithNoBackground,
+          },
+          {
+            Header: 'Closed',
+            accessor: 'pullRequestsClosed',
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,

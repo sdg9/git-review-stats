@@ -18,6 +18,9 @@ export type UserData = {
   commentsReceived: UserDataType,
   merged: UserDataType,
   pullRequestsSubmitted: UserDataType,
+  pullRequestsOpened: UserDataType,
+  pullRequestsMerged: UserDataType,
+  pullRequestsClosed: UserDataType,
 
   // Built at end
   totalActivity: UserDataType,
@@ -79,6 +82,7 @@ export type PullRequestData = ({|
         |},
         commits: {|totalCount: number|},
         createdAt: string,
+        state: string,
         deletions: number,
         headRef: {|id: string, name: string|},
         id: string,
