@@ -103,7 +103,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
       return 'yellow';
     }
     // console.log('Company: ', company);
-    return 'orange';
+    return '#fc7aff';
   }
   teamMappingStroke(user: string) {
     const team = _.get(secrets, ['userMapping', user, 'team'], undefined);
