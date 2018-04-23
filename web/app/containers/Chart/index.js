@@ -30,6 +30,7 @@ import 'react-table/react-table.css';
 
 import { numberToColorHsl } from '../../utils/math';
 import { idToName } from '../../utils/string';
+import { exportData } from '../../utils/exportCSV';
 
 import type {
   PullRequestData,
@@ -81,6 +82,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
   rowWithNoBackground({ value }) {
     return <div>{value.value}</div>;
   }
+
   rowWithBackground({ value }) {
     return this.state.useHeatmap ?
       <div style={{ backgroundColor: numberToColorHsl(value.tier * 100) }}>{value.value}</div>
@@ -121,11 +123,19 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
 
     const columns = [
       {
+        Header: '#',
+        sortable: false,
+        accessor: 'name.value',
+        width: 30,
+        Cell: row => (<div>{row.viewIndex + 1}</div>),
+      },
+      {
         Header: 'Github',
         columns: [
           {
             Header: 'ID',
             accessor: 'name.value', // String-based value accessors!
+            width: 80,
             filterable: true,
             filterMethod: (filter, row, column) => {
               const filterValue = filter.value !== undefined && filter.value.toLowerCase();
@@ -143,8 +153,10 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Percentile',
             accessor: 'totalActivity',
+            width: 100,
             sortMethod,
             Cell: (row) => {
+              // console.log('Row: ', row);
               const { value, tier } = row.value;
               // console.log('Row: ', row);
               // const percentile = row.value / maxTotalActivity * 100;
@@ -187,6 +199,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Review',
             accessor: 'reviewPerDay',
+            width: 60,
             // Cell: row => <div>hi</div>,
             sortMethod,
             Cell: this.rowWithBackground,
@@ -194,6 +207,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Comments',
             accessor: 'commentsPerDay',
+            width: 90,
             sortMethod,
             Cell: this.rowWithBackground,
           },
@@ -204,6 +218,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
         columns: [
           {
             Header: '1st or 2nd',
+            width: 80,
             accessor: 'firstTwoToApprove',
             sortMethod,
             Cell: this.rowWithBackground,
@@ -223,6 +238,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Total',
             accessor: 'approved',
+            width: 60,
             sortMethod,
             Cell: this.rowWithBackground,
           },
@@ -233,12 +249,14 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Block',
             accessor: 'changesRequestedGiven',
+            width: 60,
             sortMethod,
             Cell: this.rowWithNoBackground,
           },
           {
             Header: 'Comments',
             accessor: 'commentsGiven',
+            width: 90,
             sortMethod,
             Cell: this.rowWithBackground,
           },
@@ -277,25 +295,29 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Blocked',
             accessor: 'changesRequestedReceived',
+            width: 70,
             sortMethod,
             Cell: this.inverseRowWithBackground,
           },
           {
             Header: 'Blocked/PR',
             accessor: 'changeRequestReceivedPerPR',
+            width: 90,
             sortMethod,
             Cell: this.inverseRowWithBackground,
           },
           {
             Header: 'Comments',
             accessor: 'commentsReceived',
+            width: 90,
             sortMethod,
             // Cell: this.inverseRowWithBackground,
             Cell: this.rowWithNoBackground,
           },
           {
-            Header: 'Comments/PR',
+            Header: 'Comt/PR',
             accessor: 'commentsReceivedPerPR',
+            width: 90,
             sortMethod,
             Cell: this.inverseRowWithBackground,
           },
@@ -328,6 +350,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Merged',
             accessor: 'pullRequestsMerged',
+            width: 70,
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,
@@ -335,6 +358,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Open',
             accessor: 'pullRequestsOpened',
+            width: 60,
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,
@@ -342,6 +366,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Closed',
             accessor: 'pullRequestsClosed',
+            width: 60,
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,
@@ -349,6 +374,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           {
             Header: 'Merged Other',
             accessor: 'merged',
+            width: 110,
             sortMethod,
             // Cell: this.rowWithBackground,
             Cell: this.rowWithNoBackground,
@@ -370,6 +396,24 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
             this.setState(state => ({ useHeatmap: !state.useHeatmap }));
           }}
           >Toggle Heatmap</Button>
+          <Button
+          onClick={() => {
+            const data = this.reactTable.getResolvedState();
+            // console.log(data);
+            // exportData();
+            const csv = exportData(data);
+            if (csv) {
+              this.setState({
+                showDownload: true,
+                download: csv,
+              });
+            }
+          }}
+          >Generate Excel</Button>
+          {
+            this.state.showDownload ? <a href={`data:text/csv;base64,${window.btoa(this.state.download)}`} >Download</a> : null
+          }
+
           { /*
           Curve:
           <input
@@ -384,6 +428,7 @@ export class Chart extends React.PureComponent<Props, State> { // eslint-disable
           </label>
         </form>
         <ReactTable
+          ref={table => (this.reactTable = table)}
           data={arrayData}
           columns={columns}
           showPagination={false}
