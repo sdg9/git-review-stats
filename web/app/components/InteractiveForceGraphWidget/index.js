@@ -135,6 +135,9 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
   }
 
   render() {
+    const user = this.props.defaultSelectedNode;
+    const userLinks = this.props.identityGraphData.links[user];
+
     return (
       <div>
         <Button onClick={() => { this.setState({ userTeamColors: true }); }}>Team Colors</Button>
@@ -149,7 +152,8 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
               height: 600,
               width: 600,
               strength: {
-                charge: -400,
+                // charge: -00,
+                charge: -100,
               },
             }}
             defaultSelectedNode={{ id: this.props.defaultSelectedNode }}
@@ -184,24 +188,24 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
             ))
           }
             {
-                _.map(this.props.identityGraphData.links, (values, source) =>
+                // _.map(this.props.identityGraphData.links, (values, source) =>
                   // console.log('Val: ', values);
                   // console.log('source: ', source);
 
-                  _.map(values, (strength, target) =>
+                  _.map(userLinks, (strength, target) =>
                     // console.log('Target: ', target);
                     // console.log('Strength: ', strength);
 
                     (
                       <ForceGraphLink
-                        key={`${source}=>${target}`}
+                        key={`${user}=>${target}`}
                         link={{
-                          source,
+                          source: user,
                           target,
                           value: strength * 2,
                         }}
                       />
-                    )),
+                    ))
 
                   // return null;
                   // return (
@@ -214,7 +218,7 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
                   //   />
                   // );
 
-                )
+                // )
           }
           </InteractiveForceGraph>
         </div>
