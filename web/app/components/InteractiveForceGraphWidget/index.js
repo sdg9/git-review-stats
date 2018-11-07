@@ -85,7 +85,8 @@ class InteractiveForceGraphWidget extends React.Component<Props, State> { // esl
       return '#b60205';
     } else if (team === 'WT') {
       return '#f9f9f9';
-      // return '#ededed';
+    } else if (team === 'VOC') {
+      return '#FF8000';
     } else if (team === 'RR') {
       return '#ff9e99';
     } else if (team === 'ADA') {
